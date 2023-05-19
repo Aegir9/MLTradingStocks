@@ -4,17 +4,14 @@ import glob
 from bs4 import BeautifulSoup
 import codecs
 import numpy as np
-from numpy.core.numeric import full
-from numpy.lib.function_base import append
-from numpy.lib.npyio import savetxt
 import pandas as pd
-from pandas.core.base import DataError
 from html_files_check import check_all_folders
-
+import psycopg2
 
 check_all_folders()
 
-folders = glob.glob(os.getcwd() + '/html_data/*/')
+folders = ['C:/Users/MarceloDias/Desktop/MLTradingStocks/15-05-2023_html/'] 
+# folders = glob.glob(os.getcwd() + '/html_data/*/')
 # folders = glob.glob(os.getcwd() + '/training_data/*/')
 
 for folder in folders:
@@ -155,25 +152,51 @@ for folder in folders:
             for _ in range(10):
                 file_date.append(datetime.strptime(full_date, '%Y-%m-%d %H:%M:%S'))
             
-            
-            final_array = np.vstack((file_date, ticker, day, negotiation_shares, negotiation_prices, last_10_times_hours, last_10_times_minutes, last_10_times_seconds, last_10_prices, last_10_shares))
-            final_array = np.transpose(final_array)
-            final_array_pd = pd.DataFrame(final_array, columns=['File Date','Ticker','Day', 'Shares','Prices','Time_Hour','Time_Minute','Time_Second','Last_10_Prices','Last_10_Shares'])
+            # define a consulta SQL para inserir os dados
+            sql = "INSERT INTO stockData (file_date, ticker, day, shares, prices, time_hour, time_minute, time_second, last_10_prices, last_10_shares, is_test) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-            print(final_array_pd)
+            conn = psycopg2.connect(
+                host="localhost", # para descobrir o IP do Windows no Ubuntu via WSL2 execute no Ubuntu: cat /etc/resolv.conf | grep nameserver | awk '{print $2}'
+                database="dados_simstock",
+                user="postgres",
+                password="suasenha",
+                port='5432'
+            )
+            
+            # cria um cursor para executar comandos SQL
+            cur = conn.cursor()
+
+            for i in range(len(file_date)):
+                teste = file_date[i]
+                final_data = [file_date[i], ticker[i], day[i], negotiation_shares[i], negotiation_prices[i], last_10_times_hours[i], last_10_times_minutes[i], last_10_times_seconds[i], last_10_prices[i], last_10_shares[i], True]
+                # executa a consulta SQL para cada linha de dados
+                cur.execute(sql, final_data)
+            
+            # confirma as alterações no banco de dados quando todo o arquivo for processado.
+            conn.commit()
+                
+            # fecha a conexão com o banco de dados
+            cur.close()
+            conn.close()
+
+            # final_array = np.vstack((file_date, ticker, day, negotiation_shares, negotiation_prices, last_10_times_hours, last_10_times_minutes, last_10_times_seconds, last_10_prices, last_10_shares))
+            # final_array = np.transpose(final_array)
+            # final_array_pd = pd.DataFrame(final_array, columns=['File Date','Ticker','Day', 'Shares','Prices','Time_Hour','Time_Minute','Time_Second','Last_10_Prices','Last_10_Shares'])
+
+            print("Arquivo", file, "salvo com sucesso no Banco de Dados.")
 
 
             # final_array_pd.to_csv('testando.csv')
 
-            filepath = os.getcwd() + '/consolidado_treinamento.csv'
+            # filepath = os.getcwd() + '/consolidado_treinamento.csv'
             # print(filepath)
 
-            if os.path.exists(filepath):
-                dfOld = pd.read_csv('consolidado_treinamento.csv')
-                dfNew = dfOld.append(final_array_pd, ignore_index=False)
-                dfNew.to_csv('consolidado_treinamento.csv', index=False, encoding='utf-8')
-            else:
-                final_array_pd.to_csv('consolidado_treinamento.csv', index=False, encoding='utf-8')
+            # if os.path.exists(filepath):
+            #     dfOld = pd.read_csv('consolidado_treinamento.csv')
+            #     dfNew = dfOld.append(final_array_pd, ignore_index=False)
+            #     dfNew.to_csv('consolidado_treinamento.csv', index=False, encoding='utf-8')
+            # else:
+            #     final_array_pd.to_csv('consolidado_treinamento.csv', index=False, encoding='utf-8')
                 
     except Exception as e:
         print(e)
