@@ -10,9 +10,8 @@ import psycopg2
 
 check_all_folders()
 
-folders = ['C:/Users/MarceloDias/Desktop/MLTradingStocks/15-05-2023_html/'] 
-# folders = glob.glob(os.getcwd() + '/html_data/*/')
-# folders = glob.glob(os.getcwd() + '/training_data/*/')
+#folders = ['C:/Users/MarceloDias/Desktop/MLTradingStocks/15-05-2023_html/'] 
+folders = glob.glob(os.getcwd() + '/activities/treatment_extraction/html_data/*/')
 
 for folder in folders:
     try:
@@ -169,6 +168,8 @@ for folder in folders:
             for i in range(len(file_date)):
                 teste = file_date[i]
                 final_data = [file_date[i], ticker[i], day[i], negotiation_shares[i], negotiation_prices[i], last_10_times_hours[i], last_10_times_minutes[i], last_10_times_seconds[i], last_10_prices[i], last_10_shares[i], True]
+                print(final_data)
+                
                 # executa a consulta SQL para cada linha de dados
                 cur.execute(sql, final_data)
             

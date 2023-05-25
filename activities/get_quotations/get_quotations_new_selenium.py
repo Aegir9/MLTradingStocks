@@ -129,17 +129,21 @@ def getHTML(URL):
 
     today_date = date.today().strftime('%d-%m-%Y')
 
+    pathName = '\\activities\\treatment_extraction\\html_data' 
+    directory = today_date + '_html\\'
+    path2 = os.path.join(os.getcwd() + pathName, directory)
+
     # Salva HTML na pasta html
     print('Ponto de validação da pasta')
-    print(path.exists(today_date + '_html'))
-    if path.exists(today_date + '_html'):
-        filename = os.getcwd() + f'/{today_date}_html/' + papel + "_" + content_date + ".html"
+    print(path.exists(path2))
+    if path.exists(path2):
+        filename = path2 + papel + "_" + content_date + ".html"
         f = open(filename, 'w', encoding="utf8")
         f.write(str(content))    
         f.close()
     else:
         # trocar por f string
-        os.mkdir(today_date + '_html')
+        os.makedirs(path2, exist_ok=True)
     
     return
 
@@ -190,6 +194,6 @@ def main():
 
 if (__name__ == '__main__'):
     lower_limit = datetime.strptime('09:00:00', '%H:%M:%S').strftime('%H:%M:%S')
-    upper_limit = datetime.strptime('16:00:00', '%H:%M:%S').strftime('%H:%M:%S')
+    upper_limit = datetime.strptime('21:00:00', '%H:%M:%S').strftime('%H:%M:%S')
     print(datetime.now(tz).strftime('%H:%M:%S'))
     main()

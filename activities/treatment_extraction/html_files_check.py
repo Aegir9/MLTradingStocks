@@ -14,12 +14,12 @@ def check_all_folders():
     save_error_log = open('log_de_erros.txt', 'w')
 
 
-    folders = ['C:/Users/MarceloDias/Desktop/MLTradingStocks/15-05-2023_html'] 
-    # folders = glob.glob(os.getcwd() + '/html_data/*')
+    #folders = ['C:/Users/MarceloDias/Desktop/MLTradingStocks/15-05-2023_html'] 
+    folders = glob.glob(os.getcwd() + '/activities/treatment_extraction/html_data/*')
     non_conforming_itens = []
 
     for folder in folders:
-        # print(folder)
+        print(folder)
         for ticker in tickers:
             files = glob.glob(folder + f'/{ticker}_*.html')
             # print(files)
